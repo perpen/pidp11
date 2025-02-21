@@ -21,23 +21,23 @@ var end knobEvent
 
 // For non-knobs, simply returns the event.
 // For knobs returns either:
-// - an event with ID SS_NIL, meaning the event should be ignored
-// - or a synthetic event with ID SW_KNOBA or SW_KNOBD, and a state
-//   indicating the direction of the rotation.
+//   - an event with ID SS_NIL, meaning the event should be ignored
+//   - or a synthetic event with ID SW_KNOBA or SW_KNOBD, and a state
+//     indicating the direction of the rotation.
 func eventForKnob(nid nativeSwitchID, state bool) Event {
 	var knobID SwitchID
 	var isCw bool
 	switch nid {
-	case SW_KNOBA_CW:
+	case swKNOBA_CW:
 		knobID = SS_KNOBA
 		isCw = true
-	case SW_KNOBA_ACW:
+	case swKNOBA_ACW:
 		knobID = SS_KNOBA
 		isCw = false
-	case SW_KNOBD_CW:
+	case swKNOBD_CW:
 		knobID = SS_KNOBD
 		isCw = true
-	case SW_KNOBD_ACW:
+	case swKNOBD_ACW:
 		knobID = SS_KNOBD
 		isCw = false
 	default:

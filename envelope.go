@@ -72,7 +72,7 @@ func (env *envelope) addStage(bright1, bright2, ms int, isFinal bool) {
 func (spec *ledSpec) makeEnvelope(fx Effect, brightP float64, params ...float64) {
 	env := &spec.env
 	env.reset()
-	bright := int(math.Round(brightP * (BRIGHTNESS_STEPS - 1)))
+	bright := int(math.Round(brightP * (brightnessSteps - 1)))
 	fx.makeEnvelope(spec, bright, params...)
 }
 

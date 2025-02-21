@@ -2,12 +2,12 @@ package pidp11
 
 import "fmt"
 
-const ANTI_GHOSTING_PAUSE_NS = 1e4
-const LEDS_COUNT = 72
+const antiGhostingPauseNs = 1e4
+const ledsCount = 72
 
-var LED_ROWS = [...]uint{20, 21, 22, 23, 24, 25}
-var ROWS = [...]uint{16, 17, 18}
-var COLS = [...]uint{26, 27, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
+var ledRows = [...]uint{20, 21, 22, 23, 24, 25}
+var gpioRows = [...]uint{16, 17, 18}
+var gpioCols = [...]uint{26, 27, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
 func LedName(id LedID) string {
 	return LED_NAMES[int(id)]
@@ -47,22 +47,22 @@ func nativeSwitchName(nid nativeSwitchID) string {
 	return NATIVE_SWITCH_NAMES[nid]
 }
 
-func LightNamesToIDs(lightNames []string) []LedID {
-	lightIDs := make([]LedID, len(lightNames))
-	for i, lightName := range lightNames {
-		id, ok := LedIDByName(lightName)
+func LedNamesToIDs(names []string) []LedID {
+	ledIDs := make([]LedID, len(names))
+	for i, name := range names {
+		id, ok := LedIDByName(name)
 		if !ok {
-			panic(fmt.Errorf("invalid light name: %s", lightName))
+			panic(fmt.Errorf("invalid led name: %s", name))
 		}
-		lightIDs[i] = id
+		ledIDs[i] = id
 	}
-	return lightIDs
+	return ledIDs
 }
 
-func LightIDsToNames(lightIDs []LedID) []string {
-	names := make([]string, len(lightIDs))
-	for i, lightID := range lightIDs {
-		names[i] = LedNameByID(lightID)
+func LedIDsToNames(ids []LedID) []string {
+	names := make([]string, len(ids))
+	for i, id := range ids {
+		names[i] = LedNameByID(id)
 	}
 	return names
 }
@@ -217,93 +217,8 @@ var LED_NAMES = []string{
 	"DISPLAY_REGISTER",
 }
 
-const (
-	SW_SR0 nativeSwitchID = iota
-	SW_SR1
-	SW_SR2
-	SW_SR3
-	SW_SR4
-	SW_SR5
-	SW_SR6
-	SW_SR7
-	SW_SR8
-	SW_SR9
-	SW_SR10
-	SW_SR11
-	SW_SR12
-	SW_SR13
-	SW_SR14
-	SW_SR15
-	SW_SR16
-	SW_SR17
-	SW_SR18
-	SW_SR19
-	SW_SR20
-	SW_SR21
-	SW_KNOBA_PUSH
-	SW_KNOBD_PUSH
-	SW_TEST
-	SW_LOAD
-	SW_EXAM
-	SW_DEP
-	SW_CONT
-	SW_ENABLE
-	SW_SINST
-	SW_START
-	// Physical knobs, semi-random names, not emitted out
-	SW_KNOBA_ACW
-	SW_KNOBA_CW
-	SW_KNOBD_ACW
-	SW_KNOBD_CW
-	// Synthetic knobs, emitted with state true for clockwise
-	SW_KNOBA
-	SW_KNOBD
-	SW_NONE // xxx delete
-)
-
-var NATIVE_SWITCH_NAMES = []string{
-	"SR0",
-	"SR1",
-	"SR2",
-	"SR3",
-	"SR4",
-	"SR5",
-	"SR6",
-	"SR7",
-	"SR8",
-	"SR9",
-	"SR10",
-	"SR11",
-	"SR12",
-	"SR13",
-	"SR14",
-	"SR15",
-	"SR16",
-	"SR17",
-	"SR18",
-	"SR19",
-	"SR20",
-	"SR21",
-	"KNOBA_PUSH",
-	"KNOBD_PUSH",
-	"TEST",
-	"LOAD",
-	"EXAM",
-	"DEP",
-	"CONT",
-	"ENABLE",
-	"SINST",
-	"START",
-	"KNOBA_ACW",
-	"KNOBA_CW",
-	"KNOBD_ACW",
-	"KNOBD_CW",
-	"KNOBA",
-	"KNOBD",
-	"NONE",
-}
-
-// SS for "synthetic switch" or "software switch"
+// This is the public representation of the switches
+// SS stands for "synthetic switch".
 const (
 	SS_NIL SwitchID = iota
 	SS_KNOBA_PUSH
@@ -384,10 +299,96 @@ var switchNames = []string{
 	"SR21",
 }
 
-const BRIGHTNESS_STEPS = 32
+// Low-level representation of the switches
+const (
+	swSR0 nativeSwitchID = iota
+	swSR1
+	swSR2
+	swSR3
+	swSR4
+	swSR5
+	swSR6
+	swSR7
+	swSR8
+	swSR9
+	swSR10
+	swSR11
+	swSR12
+	swSR13
+	swSR14
+	swSR15
+	swSR16
+	swSR17
+	swSR18
+	swSR19
+	swSR20
+	swSR21
+	swKNOBA_PUSH
+	swKNOBD_PUSH
+	swTEST
+	swLOAD
+	swEXAM
+	swDEP
+	swCONT
+	swENABLE
+	swSINST
+	swSTART
+	// Physical knobs, semi-random names, used internally
+	swKNOBA_ACW
+	swKNOBA_CW
+	swKNOBD_ACW
+	swKNOBD_CW
+	// Synthetic knobs, emitted with state true for clockwise
+	swKNOBA
+	swKNOBD
+)
+
+var NATIVE_SWITCH_NAMES = []string{
+	"SR0",
+	"SR1",
+	"SR2",
+	"SR3",
+	"SR4",
+	"SR5",
+	"SR6",
+	"SR7",
+	"SR8",
+	"SR9",
+	"SR10",
+	"SR11",
+	"SR12",
+	"SR13",
+	"SR14",
+	"SR15",
+	"SR16",
+	"SR17",
+	"SR18",
+	"SR19",
+	"SR20",
+	"SR21",
+	"KNOBA_PUSH",
+	"KNOBD_PUSH",
+	"TEST",
+	"LOAD",
+	"EXAM",
+	"DEP",
+	"CONT",
+	"ENABLE",
+	"SINST",
+	"START",
+	"KNOBA_ACW",
+	"KNOBA_CW",
+	"KNOBD_ACW",
+	"KNOBD_CW",
+	"KNOBA",
+	"KNOBD",
+	"NONE",
+}
+
+const brightnessSteps = 32
 
 // From 07.1_blinkenlight_server/iopattern.c
-var BRIGHTNESS_PHASES = [32][31]bool{
+var brightnessPhases = [32][31]bool{
 	{false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false}, //  0/31 =  0%
 	{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false},  //  1/31 =  3%
 	{true, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, true, false, false, false, false, false, false, false, false, false, false, false, false, false, false},   //  2/31 =  6%

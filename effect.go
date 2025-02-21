@@ -9,6 +9,7 @@ type Effect interface {
 }
 
 // One-shot attack or release, onMs used when switching on, offMs when off
+// No parameters when passed to SetLed()
 type SimpleEffect struct {
 	onMs, offMs int
 }
@@ -34,28 +35,29 @@ func (fx SimpleEffect) makeEnvelope(spec *ledSpec, bright int, params ...float64
 	env.addStage(spec.bright, bright, ms, true)
 }
 
-// Periodic strobing, the light stays on for a fixed amount of time
+// Periodic strobing, the led stays on for a fixed amount of time
 // but the duration of the off-time is variable.
+// When passed to SetLed(), requires a [0, 1] parameter which will be
+// mapped to a frequency using the function set by SetFrequencyScaler().
 type StrobeEffect struct {
-	strobeOnLoops, onMs, offMs int
+	strobeOnLoops int // number of loops the led will stay on
+	onMs, offMs   int
 	// xxx expose param, or remove:
 	lowDivider int // used to compute the low value from the requested brightness
-	scaler     func(float64) float64
 }
 
-func NewStrobeEffect(onMs, offMs int, scaler func(float64) float64) StrobeEffect {
+func NewStrobeEffect(onMs, offMs int) StrobeEffect {
 	return StrobeEffect{
-		strobeOnLoops: 60, // how long the led should stay on
+		strobeOnLoops: 60,
 		onMs:          onMs,
 		offMs:         offMs,
 		lowDivider:    999,
-		scaler:        scaler,
 	}
 }
 
 func (fx StrobeEffect) makeEnvelope(spec *ledSpec, bright int, params ...float64) {
 	assertParams(1, params)
-	hz := fx.scaler(params[0])
+	hz := frequencyScaler.Scale(params[0])
 	onMs := fx.onMs
 	offMs := fx.offMs
 	if hz == 0 {
@@ -78,25 +80,25 @@ func (fx StrobeEffect) makeEnvelope(spec *ledSpec, bright int, params ...float64
 	spec.setupASRS(bright, bright/fx.lowDivider, onMs, offMs, upMs, downMs)
 }
 
-// Periodic flashing, the light stays on and off for the same amount of time.
+// Periodic flashing, the led stays on and off for the same amount of time.
+// When passed to SetLed(), requires a [0, 1] parameter which will be
+// mapped to a frequency using the function set by SetFrequencyScaler().
 type FlashEffect struct {
 	onMs, offMs int
 	lowDivider  int // used to compute the low value from the requested brightness
-	scaler      func(float64) float64
 }
 
-func NewFlashEffect(onMs, offMs int, scaler func(float64) float64) FlashEffect {
+func NewFlashEffect(onMs, offMs int) FlashEffect {
 	return FlashEffect{
 		onMs:       onMs,
 		offMs:      offMs,
 		lowDivider: 999,
-		scaler:     scaler,
 	}
 }
 
 func (fx FlashEffect) makeEnvelope(spec *ledSpec, bright int, params ...float64) {
 	assertParams(1, params)
-	hz := fx.scaler(params[0])
+	hz := frequencyScaler.Scale(params[0])
 	onMs := fx.onMs
 	offMs := fx.offMs
 	if hz == 0 {
@@ -131,6 +133,7 @@ func (spec *ledSpec) setupASRS(hi, lo, onMs, offMs, upMs, downMs int) {
 }
 
 // Periodic, tries to produce a recognisable pulsating envelope
+// Takes no parameters when passed to SetLed().
 type ErrorEffect struct{}
 
 func NewErrorEffect() ErrorEffect {
@@ -152,6 +155,7 @@ func assertParams(count int, params []float64) {
 		"expected %d params, got %d", count, len(params))
 }
 
+// Linear scaling between input and output ranges
 func scale(inVal, inMax, outMin, outMax int) int {
 	if inVal == 0 && inMax == 0 || outMin == outMax {
 		return outMin

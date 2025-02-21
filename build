@@ -1,0 +1,8 @@
+#!/bin/bash
+
+arm_flags_32="GOOS=linux GOARCH=arm GOARM=7"
+arm_flags_64="GOOS=linux GOARCH=arm64"
+arm_flags=$arm_flags_64
+echo build $arm_flags
+
+eval $arm_flags go build ./cmd/demo/
