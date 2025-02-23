@@ -33,3 +33,7 @@ The events should be read reasonably quickly to avoid blocking the main loop.
 # Example
 
 See `demo/main.go`.
+
+Depending on your rpi architecture, build either:
+- `GOOS=linux GOARCH=arm GOARM=7 go build ./cmd/demo/`
+- `GOOS=linux GOARCH=arm64 build ./cmd/demo/`
