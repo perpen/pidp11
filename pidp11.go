@@ -77,8 +77,8 @@ func Stop() error {
 		return nil
 	}
 	running = false
-	time.Sleep(20 * time.Millisecond) // wait for the loop to notice
 	ClearLeds(0)
+	time.Sleep(50 * time.Millisecond) // wait for the loop to notice
 	return rpio.Close()
 }
 
@@ -115,6 +115,7 @@ func SetFrequencyScaler(scaler Scaler) {
 	frequencyScaler = scaler
 }
 
+// Switches off all leds, ramping down brightness for the given duration.
 func ClearLeds(offMs int) {
 	fx := NewSimpleEffect(0, offMs)
 	for id := LedID(0); id < ledsCount; id++ {

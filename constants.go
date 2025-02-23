@@ -10,20 +10,20 @@ var gpioRows = [...]uint{16, 17, 18}
 var gpioCols = [...]uint{26, 27, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13}
 
 func LedName(id LedID) string {
-	return LED_NAMES[int(id)]
+	return ledNames[int(id)]
 }
 
-func LedIDByName(ledName string) (LedID, bool) {
-	for i, name := range LED_NAMES {
-		if name == ledName {
-			return LedID(i), true
+func LedIDByName(name string) LedID {
+	for i, ledName := range ledNames {
+		if ledName == name {
+			return LedID(i)
 		}
 	}
-	return LED_UNUSED1, false
+	panic(fmt.Errorf("invalid led name: %s", name))
 }
 
 func LedNameByID(id LedID) string {
-	for i, name := range LED_NAMES {
+	for i, name := range ledNames {
 		if i == int(id) {
 			return name
 		}
@@ -44,21 +44,19 @@ func (evt Event) SwitchName() string {
 }
 
 func nativeSwitchName(nid nativeSwitchID) string {
-	return NATIVE_SWITCH_NAMES[nid]
+	return nativeSwitchNames[nid]
 }
 
+// Panics if given an unknown name
 func LedNamesToIDs(names []string) []LedID {
 	ledIDs := make([]LedID, len(names))
 	for i, name := range names {
-		id, ok := LedIDByName(name)
-		if !ok {
-			panic(fmt.Errorf("invalid led name: %s", name))
-		}
-		ledIDs[i] = id
+		ledIDs[i] = LedIDByName(name)
 	}
 	return ledIDs
 }
 
+// Panics if given an unknown name
 func LedIDsToNames(ids []LedID) []string {
 	names := make([]string, len(ids))
 	for i, id := range ids {
@@ -142,7 +140,7 @@ const (
 	LED_DISPLAY_REGISTER
 )
 
-var LED_NAMES = []string{
+var ledNames = []string{
 	"A0",
 	"A1",
 	"A2",
@@ -217,7 +215,6 @@ var LED_NAMES = []string{
 	"DISPLAY_REGISTER",
 }
 
-// This is the public representation of the switches
 // SS stands for "synthetic switch".
 const (
 	SS_NIL SwitchID = iota
@@ -343,7 +340,7 @@ const (
 	swKNOBD
 )
 
-var NATIVE_SWITCH_NAMES = []string{
+var nativeSwitchNames = []string{
 	"SR0",
 	"SR1",
 	"SR2",

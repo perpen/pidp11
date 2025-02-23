@@ -8,8 +8,8 @@ type Effect interface {
 	makeEnvelope(spec *ledSpec, bright int, params ...float64)
 }
 
-// One-shot attack or release, onMs used when switching on, offMs when off
-// No parameters when passed to SetLed()
+// One-shot attack or release, onMs used when switching on, offMs when off.
+// No parameters when passed to SetLed().
 type SimpleEffect struct {
 	onMs, offMs int
 }
@@ -132,7 +132,7 @@ func (spec *ledSpec) setupASRS(hi, lo, onMs, offMs, upMs, downMs int) {
 	env.addStage(lo, lo, downMs-offMs, false) //sustain low
 }
 
-// Periodic, tries to produce a recognisable pulsating envelope
+// Periodic, recognisable pulsating envelope.
 // Takes no parameters when passed to SetLed().
 type ErrorEffect struct{}
 
