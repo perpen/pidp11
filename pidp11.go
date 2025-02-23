@@ -119,21 +119,22 @@ func SetFrequencyScaler(scaler Scaler) {
 func ClearLeds(offMs int) {
 	fx := NewSimpleEffect(0, offMs)
 	for id := LedID(0); id < ledsCount; id++ {
-		Led(LedID(id), fx, 0)
+		Led(LedID(id), 0, fx)
 	}
 }
 
 // Sets the led state.
 // The brightness is a [0, 1] value.
-// The params are interpreted by the effect.
-func Led(id LedID, fx Effect, brightP float64, params ...float64) {
+// The other parameters are interpreted by the effect, which may
+// decide to panic if the parameters are invalid.
+func Led(id LedID, brightP float64, fx Effect, fxParams ...float64) {
 	spec := &ledSpecs[id]
-	logger.Debug("SetLed", "led", spec.name, "fx", fx, "brightnessP", brightP, "params", params)
+	logger.Debug("Led", "led", spec.name, "brightnessP", brightP, "fx", fx, "fxParams", fxParams)
 	brightP = brigthnessScaler.Scale(brightP) * brightnessAdjust
 	spec.Lock()
 	defer spec.Unlock()
 	progress := spec.getProgress()
-	spec.makeEnvelope(fx, brightP, params...)
+	spec.makeEnvelope(brightP, fx, fxParams...)
 	spec.setProgress(progress)
 }
 

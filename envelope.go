@@ -19,7 +19,7 @@ func (s stage) String() string {
 		s.loops, s.start, s.end, s.stepLoops, s.final)
 }
 
-// The envelope describes the evolution of brightness via a sequence of stages
+// The envelope describes the evolution of brightness as a sequence of stages
 type envelope struct {
 	stages   [4]stage // increase size if you create a longer envelope
 	offset   int      // in the current stage, in loops
@@ -69,11 +69,11 @@ func (env *envelope) addStage(bright1, bright2, ms int, isFinal bool) {
 	env.count++
 }
 
-func (spec *ledSpec) makeEnvelope(fx Effect, brightP float64, params ...float64) {
+func (spec *ledSpec) makeEnvelope(brightP float64, fx Effect, fxParams ...float64) {
 	env := &spec.env
 	env.reset()
 	bright := int(math.Round(brightP * (brightnessSteps - 1)))
-	fx.makeEnvelope(spec, bright, params...)
+	fx.makeEnvelope(spec, bright, fxParams...)
 }
 
 // Advance by one step through the envelope and set brightness
@@ -112,7 +112,7 @@ func (spec *ledSpec) step() {
 
 // Returns a [0, 1] cursor indicating progress through the envelope
 // This is required for periodic effects: If the frequency of the calls
-// to SetLed() is higher than the frequency param, starting the envelope
+// to Led() is higher than the frequency param, starting the envelope
 // from 0 on every call would result in a incorrect high visual
 // frequency, as well as jarring visual irregularities.
 // So we smooth out the transition by tracking our relative location
