@@ -56,7 +56,7 @@ func main() {
 
 		// Some effects require parameters.
 		// For example for flashing and strobing we give give a [0, 1] number
-		// that will be mapped to a frequency.
+		// that will be mapped to a frequency using the frequency scaler.
 		// Here we give a low value to this parameter in order to get a low
 		// frequency and thus make the brightness changes easier to notice.
 		const periodicEffectParam = 0.1
