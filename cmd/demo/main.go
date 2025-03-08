@@ -22,13 +22,13 @@ func main() {
 
 		// These two next settings probably won't need to be changed
 		pidp11.SetBrightnessScaler(pidp11.NewLinearBrightnessScaler(
-			.05, // minimum
+			.03, // minimum
 			1,   // max
 		))
 		pidp11.SetFrequencyScaler(pidp11.NewLinearFrequencyScaler(
 			.5, // minimum frequency
 			10, // maximum frequency
-			.1, // we'll have 1Hz for this metric value
+			.1, // we'll have 1Hz for this input value
 		))
 	}
 

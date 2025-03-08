@@ -47,7 +47,7 @@ func Start(logger0 *slog.Logger) error {
 		brightnessAdjust = 1
 	}
 	if brigthnessScaler == nil {
-		brigthnessScaler = NewLinearBrightnessScaler(0.05, 1)
+		brigthnessScaler = NewLinearBrightnessScaler(0.03, 1)
 	}
 	if frequencyScaler == nil {
 		frequencyScaler = NewLinearFrequencyScaler(.5, 10, .1)
