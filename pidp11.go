@@ -18,7 +18,9 @@ type Event struct {
 	On bool
 }
 
-var NON_EVENT = Event{ID: SS_NIL}
+func (evt Event) IsZero() bool {
+	return evt.ID == SS_NIL
+}
 
 var events chan Event
 var running bool
@@ -231,7 +233,7 @@ func loop(timingChan chan int, timingLoops int) {
 }
 
 func makeEvent(nid nativeSwitchID, state bool) Event {
-	synEvt := NON_EVENT
+	synEvt := Event{}
 
 	doMomentary := func(id SwitchID) {
 		if state {
@@ -286,7 +288,7 @@ func makeEvent(nid nativeSwitchID, state bool) Event {
 // Returns the integer indicated by the register switches.
 func ReadRegSwitches() uint {
 	val := uint(0)
-	for i := 0; i < 22; i++ {
+	for i := range 22 {
 		if switches[SwitchID(i)] {
 			val ^= 1 << i
 		}

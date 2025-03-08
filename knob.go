@@ -47,13 +47,13 @@ func eventForKnob(nid nativeSwitchID, state bool) Event {
 	switch kev {
 	case cwStart:
 		end = cwEnd
-		return NON_EVENT
+		return Event{}
 	case acwStart:
 		end = acwEnd
-		return NON_EVENT
+		return Event{}
 	case end:
 		return Event{ID: knobID, On: end == cwEnd}
 	default:
-		return NON_EVENT
+		return Event{}
 	}
 }
